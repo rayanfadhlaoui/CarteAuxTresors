@@ -16,6 +16,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.mockito.Mockito;
 
 import com.rayanfadhlaoui.domain.model.entities.Field;
 import com.rayanfadhlaoui.domain.model.entities.Mountain;
@@ -30,12 +31,12 @@ public class TreasureMapFactoryTest {
 	public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
 	TreasureMapFileParser parser;
-	
+
 	@Before
 	public void setUp() {
-		parser= new TreasureMapFileParserImpl();
+		parser = new TreasureMapFileParserImpl();
 	}
-	
+
 	@Test
 	public void testCreationWithSingleDigit() throws Exception {
 		File treasureMapFile = createFile(Collections.singletonList("C - 3 - 4"));
@@ -126,6 +127,20 @@ public class TreasureMapFactoryTest {
 	public void testCreation_WithWrongSize() throws Exception {
 		File treasureMapFile = createFile(Collections.singletonList("C - 0 - 5"));
 		assertThatUnparsableExceptionIsThrown(treasureMapFile);
+	}
+
+	@Test
+	public void testParserCloseCorrectly() throws Exception {
+		File treasureMapFile = createFile(Collections.singletonList("C - 1 - 5"));
+
+		parser = Mockito.spy(parser);
+		parser.init(treasureMapFile);
+		try (TreasureMapFactory treasureMapFactory = new TreasureMapFactory(parser)) {
+			treasureMapFactory.createTreasureMap();
+		}
+
+		Mockito.verify(parser).close();
+
 	}
 
 	@Test
