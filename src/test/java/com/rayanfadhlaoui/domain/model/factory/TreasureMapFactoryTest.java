@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -21,15 +22,25 @@ import com.rayanfadhlaoui.domain.model.entities.Mountain;
 import com.rayanfadhlaoui.domain.model.entities.TreasureMap;
 import com.rayanfadhlaoui.domain.model.exception.UnparsableException;
 import com.rayanfadhlaoui.domain.model.pojo.Position;
+import com.rayanfadhlaoui.domain.services.fileParser.TreasureMapFileParser;
+import com.rayanfadhlaoui.domain.services.fileParser.TreasureMapFileParserImpl;
 
 public class TreasureMapFactoryTest {
 	@Rule
 	public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
+	TreasureMapFileParser parser;
+	
+	@Before
+	public void setUp() {
+		parser= new TreasureMapFileParserImpl();
+	}
+	
 	@Test
 	public void testCreationWithSingleDigit() throws Exception {
 		File treasureMapFile = createFile(Collections.singletonList("C - 3 - 4"));
-		try (TreasureMapFactory treasureMapFactory = new TreasureMapFactory(treasureMapFile)) {
+		parser.init(treasureMapFile);
+		try (TreasureMapFactory treasureMapFactory = new TreasureMapFactory(parser)) {
 			TreasureMap treasureMap = treasureMapFactory.createTreasureMap();
 
 			assertEquals(3, treasureMap.getWidth());
@@ -40,7 +51,8 @@ public class TreasureMapFactoryTest {
 	@Test
 	public void testCreationWithMultipleDigit() throws Exception {
 		File treasureMapFile = createFile(Collections.singletonList("C - 13 - 44"));
-		try (TreasureMapFactory treasureMapFactory = new TreasureMapFactory(treasureMapFile)) {
+		parser.init(treasureMapFile);
+		try (TreasureMapFactory treasureMapFactory = new TreasureMapFactory(parser)) {
 			TreasureMap treasureMap = treasureMapFactory.createTreasureMap();
 
 			assertEquals(13, treasureMap.getWidth());
@@ -51,7 +63,8 @@ public class TreasureMapFactoryTest {
 	@Test
 	public void testCreation_FirstLineEmpty() throws Exception {
 		File treasureMapFile = createFile(Collections.emptyList());
-		try (TreasureMapFactory treasureMapFactory = new TreasureMapFactory(treasureMapFile)) {
+		parser.init(treasureMapFile);
+		try (TreasureMapFactory treasureMapFactory = new TreasureMapFactory(parser)) {
 			treasureMapFactory.createTreasureMap();
 			fail("UnparsableException expected");
 		} catch (UnparsableException e) {
@@ -68,7 +81,8 @@ public class TreasureMapFactoryTest {
 	@Test
 	public void testCreation_WithMountainOk() throws Exception {
 		File treasureMapFile = createFile(Arrays.asList("C - 4 - 5", "M -1 -1"));
-		try (TreasureMapFactory treasureMapFactory = new TreasureMapFactory(treasureMapFile)) {
+		parser.init(treasureMapFile);
+		try (TreasureMapFactory treasureMapFactory = new TreasureMapFactory(parser)) {
 			TreasureMap treasureMap = treasureMapFactory.createTreasureMap();
 			Field field = treasureMap.getFieldAt(new Position(1, 1));
 			assertEquals(field, new Mountain());
@@ -84,7 +98,8 @@ public class TreasureMapFactoryTest {
 	@Test
 	public void testCreation_WithTresuresOk() throws Exception {
 		File treasureMapFile = createFile(Arrays.asList("C - 4 - 5", "T - 0 -0-  5"));
-		try (TreasureMapFactory treasureMapFactory = new TreasureMapFactory(treasureMapFile)) {
+		parser.init(treasureMapFile);
+		try (TreasureMapFactory treasureMapFactory = new TreasureMapFactory(parser)) {
 			TreasureMap treasureMap = treasureMapFactory.createTreasureMap();
 			Field field = treasureMap.getFieldAt(new Position(0, 0));
 			assertEquals(5, field.getNumberOfTreasures());
@@ -99,7 +114,8 @@ public class TreasureMapFactoryTest {
 	@Test
 	public void testCreation_WithTresuresOnMountain() throws Exception {
 		File treasureMapFile = createFile(Arrays.asList("C - 4 - 5", "T - 0 -0-  5", "M -0 -0"));
-		try (TreasureMapFactory treasureMapFactory = new TreasureMapFactory(treasureMapFile)) {
+		parser.init(treasureMapFile);
+		try (TreasureMapFactory treasureMapFactory = new TreasureMapFactory(parser)) {
 			TreasureMap treasureMap = treasureMapFactory.createTreasureMap();
 			Field field = treasureMap.getFieldAt(new Position(0, 0));
 			assertEquals(0, field.getNumberOfTreasures());
@@ -115,7 +131,8 @@ public class TreasureMapFactoryTest {
 	@Test
 	public void testCreation_MountainWrongPosition() throws Exception {
 		File treasureMapFile = createFile(Arrays.asList("C - 1 - 1", "M -10-10"));
-		try (TreasureMapFactory treasureMapFactory = new TreasureMapFactory(treasureMapFile)) {
+		parser.init(treasureMapFile);
+		try (TreasureMapFactory treasureMapFactory = new TreasureMapFactory(parser)) {
 			treasureMapFactory.createTreasureMap();
 			fail("IndexOutOfBoundsException expected");
 		} catch (IndexOutOfBoundsException e) {
@@ -126,7 +143,8 @@ public class TreasureMapFactoryTest {
 	@Test
 	public void testCreation_TreasureWrongPosition() throws Exception {
 		File treasureMapFile = createFile(Arrays.asList("C - 1 - 1", "T -10-10-5"));
-		try (TreasureMapFactory treasureMapFactory = new TreasureMapFactory(treasureMapFile)) {
+		parser.init(treasureMapFile);
+		try (TreasureMapFactory treasureMapFactory = new TreasureMapFactory(parser)) {
 			treasureMapFactory.createTreasureMap();
 			fail("IndexOutOfBoundsException expected");
 		} catch (IndexOutOfBoundsException e) {
@@ -135,7 +153,8 @@ public class TreasureMapFactoryTest {
 	}
 
 	private void assertThatUnparsableExceptionIsThrown(File treasureMapFile) throws Exception {
-		try (TreasureMapFactory treasureMapFactory = new TreasureMapFactory(treasureMapFile)) {
+		parser.init(treasureMapFile);
+		try (TreasureMapFactory treasureMapFactory = new TreasureMapFactory(parser)) {
 			treasureMapFactory.createTreasureMap();
 			fail("UnparsableException expected");
 		} catch (UnparsableException e) {
