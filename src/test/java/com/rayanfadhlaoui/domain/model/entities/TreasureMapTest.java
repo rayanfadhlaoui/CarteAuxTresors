@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.rayanfadhlaoui.domain.model.pojo.Dimension;
 import com.rayanfadhlaoui.domain.model.pojo.Position;
 
 public class TreasureMapTest {
@@ -13,7 +14,7 @@ public class TreasureMapTest {
 
 	@Before
 	public void setUp() {
-		treasureMap = new TreasureMap(10, 10);
+		treasureMap = new TreasureMap(new Dimension(10,10));
 	}
 	
 	@Test

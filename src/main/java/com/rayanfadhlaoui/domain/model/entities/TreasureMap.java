@@ -3,25 +3,25 @@ package com.rayanfadhlaoui.domain.model.entities;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.rayanfadhlaoui.domain.model.pojo.Dimension;
 import com.rayanfadhlaoui.domain.model.pojo.Position;
 
 public class TreasureMap {
 	private static final String OUT_OF_BOUND_MESSAGE = "You've reached too far !";
 	private final Map<Position, Field> fieldByPosition;
-	private final int width;
-	private final int height;
+	private final Dimension dimension;
 
-	public TreasureMap(int width, int height) {
-		this.width = width;
-		this.height = height;
+	public TreasureMap(Dimension dimension) {
+		this.dimension = dimension;
 		fieldByPosition = createFieldByPosition();
 
 	}
 
 	private Map<Position, Field> createFieldByPosition() {
 		Map<Position, Field> localFieldByPosition = new HashMap<>();
-		for (int x = 0; x < width; x++) {
-			for (int y = 0; y < height; y++) {
+
+		for (int x = 0; x < dimension.getWidth(); x++) {
+			for (int y = 0; y < dimension.getHeight(); y++) {
 				Position position = new Position(x, y);
 				localFieldByPosition.put(position, new Plain());
 			}
@@ -49,11 +49,11 @@ public class TreasureMap {
 	}
 
 	public int getWidth() {
-		return width;
+		return dimension.getWidth();
 	}
 
 	public int getHeight() {
-		return height;
+		return dimension.getHeight();
 	}
 
 	/**

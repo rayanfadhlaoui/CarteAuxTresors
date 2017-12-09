@@ -15,9 +15,10 @@ import java.util.regex.Pattern;
 import com.rayanfadhlaoui.domain.model.exception.UnparsableException;
 import com.rayanfadhlaoui.domain.model.pojo.Dimension;
 import com.rayanfadhlaoui.domain.model.pojo.Position;
+import com.rayanfadhlaoui.domain.model.pojo.TreasureMapData;
 import com.rayanfadhlaoui.domain.model.utils.StringUtils;
 
-public class TreasureMapFileParserImpl implements TreasureMapFileParser, AutoCloseable{
+public class TreasureMapParserImpl implements TreasureMapParser{
 	
 	private static final String DIGIT_BIGGER_THAN_ZERO = "[1-9]+[0-9]*";
 	private static final String LINE_DOES_NOT_MATCH_ANY_PATTERN = "Line does not match any pattern";
@@ -31,21 +32,19 @@ public class TreasureMapFileParserImpl implements TreasureMapFileParser, AutoClo
 	private final Map<Position, Integer> treasuresByPosition;
 	private Dimension dimension;
 	
-	public TreasureMapFileParserImpl() {
+	public TreasureMapParserImpl(File file) throws FileNotFoundException {
 		mountainPositionList = new ArrayList<>();
 		treasuresByPosition = new HashMap<>();
-	}
-		
-	@Override
-	public void init(File file) throws FileNotFoundException {
 		fileReader = new FileReader(file);
-		bufferedReader = new BufferedReader(fileReader);		
+		bufferedReader = new BufferedReader(fileReader);
 	}
 
 	@Override
-	public void extractData() throws FileNotFoundException, UnparsableException{
+	public TreasureMapData extractData() throws FileNotFoundException, UnparsableException{
 		extractMapDimension();
 		extractMountainAndTresorPosition();
+		
+		return new TreasureMapData(dimension, mountainPositionList, treasuresByPosition);
 	}
 	
 	@Override
