@@ -1,6 +1,6 @@
 package com.rayanfadhlaoui.domain.model.entities;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -19,9 +19,7 @@ public class TreasureMapTest {
 	
 	@Test
 	public void testCreationMap() {
-		Plain plain = new Plain();
-		
-		assertEquals(plain, treasureMap.getFieldAt(new Position(0,0)));
+		assertTrue(treasureMap.getFieldAt(new Position(0,0)) instanceof Plain);
 	}
 	
 	@Test(expected=IndexOutOfBoundsException.class)

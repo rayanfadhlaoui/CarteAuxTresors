@@ -19,10 +19,11 @@ import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 
 import com.rayanfadhlaoui.domain.model.exception.UnparsableException;
+import com.rayanfadhlaoui.domain.model.pojo.AdventurerData;
 import com.rayanfadhlaoui.domain.model.pojo.Dimension;
 import com.rayanfadhlaoui.domain.model.pojo.Position;
 import com.rayanfadhlaoui.domain.model.pojo.TreasureMapData;
-import com.rayanfadhlaoui.domain.services.TreasureMapService;
+import com.rayanfadhlaoui.domain.services.TreasureMapParserService;
 
 public class TreasureMapParserTest {
 	@Rule
@@ -32,7 +33,8 @@ public class TreasureMapParserTest {
 	public void testCreationWithSingleDigit() throws Exception {
 		File treasureMapFile = createFile(Collections.singletonList("C - 3 - 4"));
 		try (TreasureMapParser parser = new TreasureMapParserImpl(treasureMapFile)) {
-			TreasureMapData treasureMapData = parser.extractData();
+			parser.extractData();
+			TreasureMapData treasureMapData = parser.getTreasureMapData();
 			Dimension dimension = treasureMapData.getDimension();
 			assertEquals(3, dimension.getWidth());
 			assertEquals(4, dimension.getHeight());
@@ -43,7 +45,8 @@ public class TreasureMapParserTest {
 	public void testCreationWithMultipleDigit() throws Exception {
 		File treasureMapFile = createFile(Collections.singletonList("C - 13 - 44"));
 		try (TreasureMapParser parser = new TreasureMapParserImpl(treasureMapFile)) {
-			TreasureMapData treasureMapData = parser.extractData();
+			parser.extractData();
+			TreasureMapData treasureMapData = parser.getTreasureMapData();
 			Dimension dimension = treasureMapData.getDimension();
 			assertEquals(13, dimension.getWidth());
 			assertEquals(44, dimension.getHeight());
@@ -71,8 +74,9 @@ public class TreasureMapParserTest {
 	public void testCreation_WithMountainOk() throws Exception {
 		File treasureMapFile = createFile(Arrays.asList("C - 4 - 5", "M -1 -1"));
 		try (TreasureMapParser parser = new TreasureMapParserImpl(treasureMapFile)) {
-			TreasureMapData extractData = parser.extractData();
-			List<Position> mountainPositionList = extractData.getMountainPositionList();
+			parser.extractData();
+			TreasureMapData treasureMapData = parser.getTreasureMapData();
+			List<Position> mountainPositionList = treasureMapData.getMountainPositionList();
 			Position position = mountainPositionList.get(0);
 			assertEquals(1, mountainPositionList.size());
 			assertEquals(new Position(1, 1), position);
@@ -89,10 +93,26 @@ public class TreasureMapParserTest {
 	public void testCreation_WithTresuresOk() throws Exception {
 		File treasureMapFile = createFile(Arrays.asList("C - 4 - 5", "T - 0 -0-  5"));
 		try (TreasureMapParser parser = new TreasureMapParserImpl(treasureMapFile)) {
-			TreasureMapData extractData = parser.extractData();
-			Map<Position, Integer> treasuresByPosition = extractData.getTreasuresByPosition();
+			parser.extractData();
+			TreasureMapData treasureMapData = parser.getTreasureMapData();
+			Map<Position, Integer> treasuresByPosition = treasureMapData.getTreasuresByPosition();
 			int numberOfTreasures = treasuresByPosition.get(new Position(0, 0));
 			assertEquals(5, numberOfTreasures);
+		}
+	}
+
+	@Test
+	public void testCreation_WithAdventurer() throws Exception {
+		File treasureMapFile = createFile(Arrays.asList("C - 4 - 5", "A - Indiana - 0 - 4 - N -  AADGAA"));
+		try (TreasureMapParser parser = new TreasureMapParserImpl(treasureMapFile)) {
+			parser.extractData();
+			Map<Position, AdventurerData> adventurerDataByPosition = parser.getTreasureMapData().getAdventurerDataByPosition();
+			AdventurerData adventurerData = adventurerDataByPosition.get(new Position(0, 4));
+			assertEquals("Indiana", adventurerData.getName());
+			assertEquals("N", adventurerData.getDirection());
+			String instructions = adventurerData.getInstructions();
+			assertEquals(6, instructions.length());
+			assertEquals("AADGAA", instructions);
 		}
 	}
 
@@ -110,15 +130,31 @@ public class TreasureMapParserTest {
 	@Test
 	public void testParserCloseCorrectly() throws Exception {
 		File treasureMapFile = createFile(Collections.singletonList("C - 1 - 5"));
-		
+
 		TreasureMapParser parser = new TreasureMapParserImpl(treasureMapFile);
 		TreasureMapParser parserSpy = Mockito.spy(parser);
-		try(TreasureMapService treasureMapService = new TreasureMapService(parserSpy)){
+		try (TreasureMapParserService treasureMapService = new TreasureMapParserService(parserSpy)) {
 			treasureMapService.extractData();
 		}
 
 		Mockito.verify(parserSpy).close();
 
+	}
+
+	@Test
+	public void testCreation_WithComment() throws Exception {
+		String mapCreation = "C - 4 - 5";
+		String comment = "#  {A comme Aventurier} - {Nom de l’aventurier} - {Axe horizontal} - {Axe vertical} - {Orientation} - {Séquence de mouvement} ";
+		String treasurePosition = "T - 3 -4-  50";
+		File treasureMapFile = createFile(Arrays.asList(mapCreation, comment, treasurePosition));
+
+		try (TreasureMapParser parser = new TreasureMapParserImpl(treasureMapFile)) {
+			parser.extractData();
+			TreasureMapData treasureMapData = parser.getTreasureMapData();
+			Map<Position, Integer> treasuresByPosition = treasureMapData.getTreasuresByPosition();
+			int numberOfTreasures = treasuresByPosition.get(new Position(3, 4));
+			assertEquals(50, numberOfTreasures);
+		}
 	}
 
 	private void assertThatUnparsableExceptionIsThrown(File treasureMapFile) throws Exception {
