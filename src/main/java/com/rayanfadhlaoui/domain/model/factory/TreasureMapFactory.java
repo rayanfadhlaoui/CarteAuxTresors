@@ -6,7 +6,9 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -16,9 +18,11 @@ import com.rayanfadhlaoui.domain.model.exception.UnparsableException;
 import com.rayanfadhlaoui.domain.model.pojo.Position;
 import com.rayanfadhlaoui.domain.model.utils.StringUtils;
 
-public class TreasureMapFactory {
+public class TreasureMapFactory implements AutoCloseable{
 
-	private final Pattern mapPattern = Pattern.compile("C-\\d*-\\d*");
+	private static final String DIGIT_BIGGER_THAN_ZERO = "[1-9]+[0-9]*";
+	private static final String LINE_DOES_NOT_MATCH_ANY_PATTERN = "Line does not match any pattern";
+	private final Pattern mapPattern = Pattern.compile("C-" + DIGIT_BIGGER_THAN_ZERO + "-" + DIGIT_BIGGER_THAN_ZERO);
 	private final Pattern mountainPattern = Pattern.compile("M-\\d*-\\d*");
 	private final Pattern treasurePattern = Pattern.compile("T-\\d*-\\d*-\\d*");
 
@@ -27,11 +31,13 @@ public class TreasureMapFactory {
 	private FileReader fileReader;
 	private int width;
 	private int height;
-	private List<Position> mountainPositionList;
+	private final List<Position> mountainPositionList;
+	private final Map<Position, Integer> treasuresByPosition;
 
 	public TreasureMapFactory(File treasureMapFile) {
 		this.treasureMapFile = treasureMapFile;
 		mountainPositionList = new ArrayList<>();
+		treasuresByPosition = new HashMap<>();
 	}
 
 	public TreasureMap createTreasureMap() throws FileNotFoundException, UnparsableException {
@@ -49,7 +55,14 @@ public class TreasureMapFactory {
 	private TreasureMap generateTreasureMap() {
 		TreasureMap treasureMap = new TreasureMap(width, height);
 		mountainPositionList.forEach(position -> treasureMap.addField(position, new Mountain()));
+		treasuresByPosition.forEach(treasureMap::addTreasureToPosition); 
+		
 		return treasureMap;
+	}
+
+	private void initBufferedReader() throws FileNotFoundException {
+		fileReader = new FileReader(treasureMapFile);
+		bufferedReader = new BufferedReader(fileReader);
 	}
 
 	private void extractMountainAndTresorPosition() throws UnparsableException {
@@ -57,12 +70,16 @@ public class TreasureMapFactory {
 		try {
 			while ((currentLine = StringUtils.removeWhiteSpace(bufferedReader.readLine())) != null) {
 				Matcher mountainMatcher = mountainPattern.matcher(currentLine);
+				Matcher treasureMatcher = treasurePattern.matcher(currentLine);
 				if (mountainMatcher.matches()) {
 					extractMontainPosition(currentLine);
-				} else {
-					throw new UnparsableException("Line does not match any pattern");
+				} 
+				else if (treasureMatcher.matches()) {
+					extractTreasuresPosition(currentLine);
+				} 
+				else {
+					throw new UnparsableException(LINE_DOES_NOT_MATCH_ANY_PATTERN);
 				}
-
 			}
 		} catch (IOException e) {
 			throw new UnparsableException(e.getMessage());
@@ -76,9 +93,12 @@ public class TreasureMapFactory {
 		mountainPositionList.add(new Position(x, y));
 	}
 
-	private void initBufferedReader() throws FileNotFoundException {
-		fileReader = new FileReader(treasureMapFile);
-		bufferedReader = new BufferedReader(fileReader);
+	private void extractTreasuresPosition(String line) {
+		String[] splitLine = line.split("-");
+		int x = Integer.valueOf(splitLine[1]);
+		int y = Integer.valueOf(splitLine[2]);
+		int numberOTreasures = Integer.valueOf(splitLine[3]);
+		treasuresByPosition.put(new Position(x, y), numberOTreasures);
 	}
 
 	private void extractWidthAndHeight() throws UnparsableException {
@@ -102,9 +122,17 @@ public class TreasureMapFactory {
 
 		Matcher matcher = mapPattern.matcher(firstLine);
 		if (!matcher.matches()) {
-			throw new UnparsableException("First line does not match with the pattern 'C-[0-9]*-[0-9]*'");
+			throw new UnparsableException(LINE_DOES_NOT_MATCH_ANY_PATTERN);
 		}
 
 		return true;
+	}
+
+	@Override
+	public void close() throws Exception {
+		if(bufferedReader != null) {
+			bufferedReader.close();
+			fileReader.close();
+		}
 	}
 }
