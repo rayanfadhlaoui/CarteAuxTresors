@@ -25,23 +25,22 @@ public class TreasureMapFactory implements AutoCloseable{
 		return treasureMap;
 	}
 
+	@Override
+	public void close() throws Exception {
+		parser.close();
+	}
+	
 	private TreasureMap generateTreasureMap() {
 		Dimension dimension = parser.getDimension();
-		TreasureMap treasureMap = new TreasureMap(dimension.getWidth(), dimension.getHeight());
 		List<Position> mountainsPosition = parser.getMountainsPosition();
-		Map<Position, Integer> treasuresByPosition2 = parser.getTreasuresByPosition();
+		Map<Position, Integer> treasuresByPosition = parser.getTreasuresByPosition();
+
+		TreasureMap treasureMap = new TreasureMap(dimension.getWidth(), dimension.getHeight());
+		
 		mountainsPosition.forEach(position -> treasureMap.addField(position, new Mountain()));
-		treasuresByPosition2.forEach(treasureMap::addTreasureToPosition); 
+		treasuresByPosition.forEach(treasureMap::addTreasureToPosition); 
 		
 		return treasureMap;
 	}
 
-	@Override
-	public void close() throws Exception {
-		parser.close();
-		/*if(bufferedReader != null) {
-			bufferedReader.close();
-			fileReader.close();
-		}*/
-	}
 }
