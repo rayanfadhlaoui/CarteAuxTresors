@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.rayanfadhlaoui.domain.model.entities.Adventurer;
 import com.rayanfadhlaoui.domain.model.exception.UnparsableException;
 import com.rayanfadhlaoui.domain.model.pojo.AdventurerData;
 import com.rayanfadhlaoui.domain.model.pojo.Dimension;
@@ -48,11 +47,6 @@ public class TreasureMapParserImpl implements TreasureMapParser {
 	@Override
 	public TreasureMapData getTreasureMapData() {
 		return treasureMapData;
-	}
-
-	@Override
-	public Map<Position, Adventurer> getAdventurerByPosition() {
-		return null;
 	}
 
 	@Override
