@@ -19,4 +19,9 @@ public class Mountain implements Field {
 	public Field addTreasure(Integer numberOfTreasures) {
 		return this;
 	}
+
+	@Override
+	public boolean isAccessible() {
+		return false;
+	}
 }

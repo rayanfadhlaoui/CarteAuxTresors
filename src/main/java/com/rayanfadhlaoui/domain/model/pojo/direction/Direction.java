@@ -1,5 +1,9 @@
 package com.rayanfadhlaoui.domain.model.pojo.direction;
 
-public interface Direction {
+import com.rayanfadhlaoui.domain.model.pojo.Position;
 
+public interface Direction {
+	Direction rotateLeft();
+	Direction rotateRight();
+	Position move();
 }

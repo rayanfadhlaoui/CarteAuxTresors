@@ -20,4 +20,9 @@ public class Plain implements Field{
 	public Field addTreasure(Integer numberOfTreasures) {
 		return new Plain(numberOfTreasures);
 	}
+
+	@Override
+	public boolean isAccessible() {
+		return true;
+	}
 }	

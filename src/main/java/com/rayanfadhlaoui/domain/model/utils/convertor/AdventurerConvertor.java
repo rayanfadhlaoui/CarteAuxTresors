@@ -12,8 +12,8 @@ import com.rayanfadhlaoui.domain.model.pojo.direction.SouthDirection;
 import com.rayanfadhlaoui.domain.model.pojo.direction.WestDirection;
 import com.rayanfadhlaoui.domain.model.pojo.instruction.Instruction;
 import com.rayanfadhlaoui.domain.model.pojo.instruction.MoveForwardInstruction;
-import com.rayanfadhlaoui.domain.model.pojo.instruction.MoveLeftInstruction;
-import com.rayanfadhlaoui.domain.model.pojo.instruction.MoveRightInstruction;
+import com.rayanfadhlaoui.domain.model.pojo.instruction.TurnLeftInstruction;
+import com.rayanfadhlaoui.domain.model.pojo.instruction.TurnRightInstruction;
 
 public class AdventurerConvertor {
 
@@ -41,10 +41,10 @@ public class AdventurerConvertor {
 				instructionList.add(new MoveForwardInstruction());
 				break;
 			case MOVE_RIGHT:
-				instructionList.add(new MoveRightInstruction());
+				instructionList.add(new TurnRightInstruction());
 				break;
 			case MOVE_LEFT:
-				instructionList.add(new MoveLeftInstruction());
+				instructionList.add(new TurnLeftInstruction());
 				break;
 			default:
 				throw new IllegalArgumentException();

@@ -5,4 +5,6 @@ public interface Field {
 	int getNumberOfTreasures();
 
 	Field addTreasure(Integer numberOfTreasures);
+
+	boolean isAccessible();
 }

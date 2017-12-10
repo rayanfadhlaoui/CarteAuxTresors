@@ -15,8 +15,8 @@ import com.rayanfadhlaoui.domain.model.pojo.direction.SouthDirection;
 import com.rayanfadhlaoui.domain.model.pojo.direction.WestDirection;
 import com.rayanfadhlaoui.domain.model.pojo.instruction.Instruction;
 import com.rayanfadhlaoui.domain.model.pojo.instruction.MoveForwardInstruction;
-import com.rayanfadhlaoui.domain.model.pojo.instruction.MoveLeftInstruction;
-import com.rayanfadhlaoui.domain.model.pojo.instruction.MoveRightInstruction;
+import com.rayanfadhlaoui.domain.model.pojo.instruction.TurnLeftInstruction;
+import com.rayanfadhlaoui.domain.model.pojo.instruction.TurnRightInstruction;
 
 public class AdventurerConvertorTest {
 	
@@ -28,8 +28,8 @@ public class AdventurerConvertorTest {
 		List<Instruction> instructionList = adventurer.getInstructionList();
 		assertEquals(6, instructionList.size());
 		assertTrue(instructionList.get(0) instanceof MoveForwardInstruction);
-		assertTrue(instructionList.get(2) instanceof MoveRightInstruction);
-		assertTrue(instructionList.get(3) instanceof MoveLeftInstruction);
+		assertTrue(instructionList.get(2) instanceof TurnRightInstruction);
+		assertTrue(instructionList.get(3) instanceof TurnLeftInstruction);
 	}
 	
 	@Test
@@ -40,8 +40,8 @@ public class AdventurerConvertorTest {
 		List<Instruction> instructionList = adventurer.getInstructionList();
 		assertEquals(6, instructionList.size());
 		assertTrue(instructionList.get(0) instanceof MoveForwardInstruction);
-		assertTrue(instructionList.get(2) instanceof MoveLeftInstruction);
-		assertTrue(instructionList.get(3) instanceof MoveRightInstruction);
+		assertTrue(instructionList.get(2) instanceof TurnLeftInstruction);
+		assertTrue(instructionList.get(3) instanceof TurnRightInstruction);
 	}
 	
 	@Test

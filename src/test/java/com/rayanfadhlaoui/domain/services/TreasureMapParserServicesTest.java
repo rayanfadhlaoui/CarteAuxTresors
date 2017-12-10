@@ -26,8 +26,8 @@ import com.rayanfadhlaoui.domain.model.pojo.TreasureMapData;
 import com.rayanfadhlaoui.domain.model.pojo.direction.NorthDirection;
 import com.rayanfadhlaoui.domain.model.pojo.instruction.Instruction;
 import com.rayanfadhlaoui.domain.model.pojo.instruction.MoveForwardInstruction;
-import com.rayanfadhlaoui.domain.model.pojo.instruction.MoveLeftInstruction;
-import com.rayanfadhlaoui.domain.model.pojo.instruction.MoveRightInstruction;
+import com.rayanfadhlaoui.domain.model.pojo.instruction.TurnLeftInstruction;
+import com.rayanfadhlaoui.domain.model.pojo.instruction.TurnRightInstruction;
 import com.rayanfadhlaoui.domain.services.TreasureMapParserService;
 import com.rayanfadhlaoui.domain.services.fileParser.TreasureMapParser;
 
@@ -74,8 +74,8 @@ public class TreasureMapParserServicesTest {
 		List<Instruction> instructionList = adventurer.getInstructionList();
 		assertEquals(6, instructionList.size());
 		assertTrue(instructionList.get(0) instanceof MoveForwardInstruction);
-		assertTrue(instructionList.get(2) instanceof MoveRightInstruction);
-		assertTrue(instructionList.get(3) instanceof MoveLeftInstruction);
+		assertTrue(instructionList.get(2) instanceof TurnRightInstruction);
+		assertTrue(instructionList.get(3) instanceof TurnLeftInstruction);
 	}
 
 	@Test
@@ -121,4 +121,27 @@ public class TreasureMapParserServicesTest {
 		}
 	}
 
+	@Test
+	public void testAdventurerExploration() {
+		mountainsPositionList.add(new Position(2, 5));
+		mountainsPositionList.add(new Position(0, 7));
+		treasuresByPosition.put(new Position(1, 4), 1);
+		treasuresByPosition.put(new Position(1, 6), 2);
+		AdventurerData adventurerData = new AdventurerData("Indiana", "S", "DDAAGAAADAAADAAGGA");
+		adventurerDataByPosition.put(new Position(2,4), adventurerData);
+		TreasureMapData treasureMapData = new TreasureMapData(new Dimension(5, 14), mountainsPositionList, treasuresByPosition, adventurerDataByPosition);
+
+		Mockito.when(parserMock.getTreasureMapData()).thenReturn(treasureMapData);
+		
+		treasureMapService.generateTreasureMapAndAdventurer();
+		treasureMapService.simulate();
+		Map<Position, Adventurer> adventurerByPosition = treasureMapService.getAdventurerByPosition();
+
+		Adventurer adventurer = adventurerByPosition.get(new Position(1,5));
+		assertTrue(adventurer == null);
+		adventurer = adventurerByPosition.get(new Position(1,6));
+		assertTrue(adventurer != null);
+		
+	}
+	
 }

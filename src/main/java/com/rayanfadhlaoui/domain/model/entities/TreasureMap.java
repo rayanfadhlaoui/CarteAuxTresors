@@ -79,4 +79,12 @@ public class TreasureMap {
 		Field field = getFieldAt(position).addTreasure(numberOfTreasures);
 		addField(position, field);
 	}
+
+	public boolean isAccessible(Position position) {
+		Field field = fieldByPosition.get(position);
+		if (field != null) {
+			return field.isAccessible();
+		}
+		return false;
+	}
 }

@@ -18,7 +18,7 @@ public class Position {
 	public int getX() {
 		return x;
 	}
-
+	
 	@Override
 	public boolean equals(Object o) {
 		if (o instanceof Position) {
@@ -35,4 +35,5 @@ public class Position {
 		res += 31 * y;
 		return res;
 	}
+
 }
