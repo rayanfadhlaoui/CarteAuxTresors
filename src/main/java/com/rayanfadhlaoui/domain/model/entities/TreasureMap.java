@@ -1,10 +1,13 @@
 package com.rayanfadhlaoui.domain.model.entities;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.rayanfadhlaoui.domain.model.pojo.Dimension;
 import com.rayanfadhlaoui.domain.model.pojo.Position;
+import com.rayanfadhlaoui.domain.services.fileParser.MountainStrigifierVisitor;
+import com.rayanfadhlaoui.domain.services.fileParser.TreasureStrigifierVisitor;
 
 public class TreasureMap {
 	private static final String OUT_OF_BOUND_MESSAGE = "You've reached too far !";
@@ -87,4 +90,16 @@ public class TreasureMap {
 		}
 		return false;
 	}
+
+	public void strigifyMountainsAndTreasures(List<String> contentList) {
+		MountainStrigifierVisitor mountainStrigifierVisitor = new MountainStrigifierVisitor();
+		TreasureStrigifierVisitor treasureStrigifierVisitor = new TreasureStrigifierVisitor();
+		fieldByPosition.forEach((position, field) -> {
+			field.visitWithPosition(mountainStrigifierVisitor, position);
+			field.visitWithPosition(treasureStrigifierVisitor, position);
+		});
+		mountainStrigifierVisitor.completeContent(contentList);
+		treasureStrigifierVisitor.completeContent(contentList);
+	}
+
 }

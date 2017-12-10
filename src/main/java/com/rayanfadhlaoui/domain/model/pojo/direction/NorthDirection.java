@@ -19,5 +19,8 @@ public class NorthDirection implements Direction {
 		return new Position(0,1);
 	}
 
-
+	@Override
+	public String toString() {
+		return "N";
+	}
 }

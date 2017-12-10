@@ -50,5 +50,4 @@ public class TreasureMapPattern {
 
 		return Pattern.matches(adventurerRegexBuilder.toString(), line);
 	}
-
 }

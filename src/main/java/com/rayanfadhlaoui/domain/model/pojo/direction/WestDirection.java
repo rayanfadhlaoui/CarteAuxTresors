@@ -19,4 +19,8 @@ public class WestDirection implements Direction {
 		return new Position(-1, 0);
 	}
 
+	@Override
+	public String toString() {
+		return "O";
+	}
 }

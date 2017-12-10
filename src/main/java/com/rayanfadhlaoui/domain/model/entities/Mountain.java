@@ -1,5 +1,8 @@
 package com.rayanfadhlaoui.domain.model.entities;
 
+import com.rayanfadhlaoui.domain.model.pojo.Position;
+import com.rayanfadhlaoui.domain.model.visitor.FieldVisitor;
+
 public class Mountain implements Field {
 	
 	@Override
@@ -38,5 +41,10 @@ public class Mountain implements Field {
 	@Override
 	public void removeAdventurer() {
 		//do nothing
+	}
+
+	@Override
+	public void visitWithPosition(FieldVisitor visitor, Position position) {
+		visitor.visit(this, position);
 	}
 }

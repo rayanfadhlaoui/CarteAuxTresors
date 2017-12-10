@@ -5,14 +5,22 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 
 import com.rayanfadhlaoui.domain.model.entities.Adventurer;
@@ -20,11 +28,11 @@ import com.rayanfadhlaoui.domain.model.entities.Field;
 import com.rayanfadhlaoui.domain.model.entities.Mountain;
 import com.rayanfadhlaoui.domain.model.entities.Plain;
 import com.rayanfadhlaoui.domain.model.entities.TreasureMap;
+import com.rayanfadhlaoui.domain.model.exception.UnparsableException;
 import com.rayanfadhlaoui.domain.model.pojo.AdventurerData;
 import com.rayanfadhlaoui.domain.model.pojo.Dimension;
 import com.rayanfadhlaoui.domain.model.pojo.Position;
 import com.rayanfadhlaoui.domain.model.pojo.TreasureMapData;
-import com.rayanfadhlaoui.domain.model.pojo.direction.EastDirection;
 import com.rayanfadhlaoui.domain.model.pojo.direction.NorthDirection;
 import com.rayanfadhlaoui.domain.model.pojo.direction.SouthDirection;
 import com.rayanfadhlaoui.domain.model.pojo.direction.WestDirection;
@@ -34,9 +42,15 @@ import com.rayanfadhlaoui.domain.model.pojo.instruction.TurnLeftInstruction;
 import com.rayanfadhlaoui.domain.model.pojo.instruction.TurnRightInstruction;
 import com.rayanfadhlaoui.domain.services.TreasureMapParserService;
 import com.rayanfadhlaoui.domain.services.fileParser.TreasureMapParser;
+import com.rayanfadhlaoui.domain.services.fileParser.TreasureMapParserImpl;
+import com.rayanfadhlaoui.domain.services.fileParser.TreasureMapWriter;
+import com.rayanfadhlaoui.domain.services.fileParser.TreasureMapWriterImpl;
 
-public class TreasureMapParserServicesTest {
+public class TreasureMapServiceTest {
 
+	@Rule
+	public TemporaryFolder temporaryFolder = new TemporaryFolder();
+	
 	private TreasureMapParser parserMock;
 	private Map<Position, Integer> treasuresByPosition;
 	private List<Position> mountainsPositionList;
@@ -237,4 +251,46 @@ public class TreasureMapParserServicesTest {
 		
 	}
 
+	@Test
+	public void testFromEndToEnd() throws IOException, UnparsableException {
+		List<String> fileContent = Arrays.asList(
+				"C - 3 - 4", 
+				"M - 1 - 0", 
+				"M - 2 - 1", 
+				"T - 0 - 3 - 2",
+				"T - 1 - 3 - 3",
+				"A - Laura - 1 - 1 - N - AAGAGAGGA");
+		File treasureMapFile = createFile(fileContent);
+		TreasureMapParser parserMock = new TreasureMapParserImpl(treasureMapFile);
+		treasureMapService = new TreasureMapParserService(parserMock);
+		treasureMapService.extractData();
+		treasureMapService.generateTreasureMapAndAdventurer();
+		treasureMapService.simulate();
+		
+		TreasureMapWriter treasureMapWriter = new TreasureMapWriterImpl();
+		File resultFile = treasureMapWriter.write(treasureMapService.getTreasureMap(), treasureMapService.getAdventurerByPosition());
+		StringBuilder sb = new StringBuilder();
+		Files.lines(resultFile.toPath()).forEach(content -> sb.append(content).append("\n"));
+		
+		String expectedResult = "C-3-4\n" +
+								"M-2-1\n" +
+								"M-1-0\n" +
+								"T-1-3-2\n" +
+								"A-Laura-0-3-N-3\n";
+		assertEquals(expectedResult, sb.toString());
+	}
+	
+	private File createFile(List<String> instructionList) {
+		File file = null;
+		try {
+			file = temporaryFolder.newFile("treasureMap.txt");
+			Files.write(file.toPath(), instructionList, StandardCharsets.UTF_8, StandardOpenOption.APPEND);
+			return file;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return file;
+	}
+
+	
 }

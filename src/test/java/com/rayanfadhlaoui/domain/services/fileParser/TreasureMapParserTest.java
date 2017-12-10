@@ -170,19 +170,11 @@ public class TreasureMapParserTest {
 		File file = null;
 		try {
 			file = temporaryFolder.newFile("treasureMap.txt");
-			test(file, instructionList);
+			Files.write(file.toPath(), instructionList, StandardCharsets.UTF_8, StandardOpenOption.APPEND);
 			return file;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		return file;
-	}
-
-	private void test(File file, List<String> instructionsList) {
-		try {
-			Files.write(file.toPath(), instructionsList, StandardCharsets.UTF_8, StandardOpenOption.APPEND);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 }

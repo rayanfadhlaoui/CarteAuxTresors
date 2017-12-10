@@ -19,4 +19,8 @@ public class SouthDirection implements Direction{
 		return new Position(0, -1);
 	}
 
+	@Override
+	public String toString() {
+		return "S";
+	}
 }

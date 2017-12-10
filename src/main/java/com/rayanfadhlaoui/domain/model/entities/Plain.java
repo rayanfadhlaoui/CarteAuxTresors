@@ -1,5 +1,8 @@
 package com.rayanfadhlaoui.domain.model.entities;
 
+import com.rayanfadhlaoui.domain.model.pojo.Position;
+import com.rayanfadhlaoui.domain.model.visitor.FieldVisitor;
+
 public class Plain implements Field {
 	
 	public boolean hasAdventurer;
@@ -47,4 +50,10 @@ public class Plain implements Field {
 	public void removeAdventurer() {
 		hasAdventurer = false;
 	}
+
+	@Override
+	public void visitWithPosition(FieldVisitor visitor, Position position) {
+		visitor.visit(this, position);
+	}
+
 }
