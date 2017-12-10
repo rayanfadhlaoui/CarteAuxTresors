@@ -1,7 +1,7 @@
 package com.rayanfadhlaoui.domain.model.entities;
 
 public class Mountain implements Field {
-
+	
 	@Override
 	public int getNumberOfTreasures() {
 		return 0;
@@ -23,5 +23,20 @@ public class Mountain implements Field {
 	@Override
 	public boolean isAccessible() {
 		return false;
+	}
+
+	@Override
+	public int collectTreasure() {
+		return 0;
+	}
+
+	@Override
+	public void addAdventurer() {
+		//do nothing
+	}
+
+	@Override
+	public void removeAdventurer() {
+		//do nothing
 	}
 }

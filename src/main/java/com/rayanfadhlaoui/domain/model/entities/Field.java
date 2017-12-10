@@ -7,4 +7,10 @@ public interface Field {
 	Field addTreasure(Integer numberOfTreasures);
 
 	boolean isAccessible();
+
+	int collectTreasure();
+
+	void addAdventurer();
+
+	void removeAdventurer();
 }

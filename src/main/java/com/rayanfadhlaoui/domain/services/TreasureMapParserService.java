@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.rayanfadhlaoui.domain.model.entities.Adventurer;
+import com.rayanfadhlaoui.domain.model.entities.Field;
 import com.rayanfadhlaoui.domain.model.entities.Mountain;
 import com.rayanfadhlaoui.domain.model.entities.TreasureMap;
 import com.rayanfadhlaoui.domain.model.exception.UnparsableException;
@@ -55,8 +56,10 @@ public class TreasureMapParserService implements AutoCloseable {
 
 	private void generateAdventures(TreasureMapData treasureMapData) {
 		Map<Position, AdventurerData> adventurerDataByPosition = treasureMapData.getAdventurerDataByPosition();
-		adventurerDataByPosition
-				.forEach((position, adventurerData) -> adventurerByPosition.put(position, AdventurerConvertor.convert(adventurerData)));
+		adventurerDataByPosition.forEach((position, adventurerData) -> {
+			adventurerByPosition.put(position, AdventurerConvertor.convert(adventurerData));
+			treasureMap.getFieldAt(position).addAdventurer();
+		});
 	}
 
 	private void generateTreasureMap(TreasureMapData treasureMapData) {
@@ -95,8 +98,18 @@ public class TreasureMapParserService implements AutoCloseable {
 
 	private void moveAdventurer(List<Runnable> adventurerByPositionUpdater, Position currentPosition, Adventurer adventurer, Position newPosition) {
 		if (!currentPosition.equals(newPosition) && treasureMap.isAccessible(newPosition)) {
+
+			adventurer.collectTreasure(treasureMap.getFieldAt(newPosition));
+
 			adventurerByPositionUpdater.add(() -> {
+
 				adventurerByPosition.put(newPosition, adventurer);
+				Field fieldNewPosition = treasureMap.getFieldAt(newPosition);
+				Field fieldCurrentPosition = treasureMap.getFieldAt(currentPosition);
+
+				fieldNewPosition.addAdventurer();
+				fieldCurrentPosition.removeAdventurer();
+
 				adventurerByPosition.remove(currentPosition);
 			});
 		}

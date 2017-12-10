@@ -10,6 +10,7 @@ public class Adventurer {
 
 	private final String name;
 	private Direction direction;
+	private int collectedTreasures;
 	private final List<Instruction> instructionList;
 	private final Iterator<Instruction> iterator;
 
@@ -17,6 +18,7 @@ public class Adventurer {
 		this.name = name;
 		this.direction = direction;
 		this.instructionList = instructionList;
+		collectedTreasures = 0;
 		iterator = instructionList.iterator();
 	}
 
@@ -45,6 +47,14 @@ public class Adventurer {
 
 	public void setDirection(Direction direction) {
 		this.direction = direction;
+	}
+	
+	public void collectTreasure(Field field) {
+		collectedTreasures += field.collectTreasure();
+	}
+
+	public int getCollectedTreasures() {
+		return collectedTreasures;
 	}
 
 }
